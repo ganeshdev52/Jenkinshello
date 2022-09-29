@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<file:config name="File_Config" doc:name="File Config" doc:id="568c3063-e116-4c6f-8f18-3f5fe4ee52d8" >
+		<file:connection workingDir="C:\Softwares\Source" />
+	</file:config>
+	<flow name="FileConnectorExampleFlow" doc:id="be219cb0-7bc3-4385-b4cd-67d80d08d2d9" initialState="stopped">
+		<file:listener doc:name="On New or Updated File" doc:id="90c52378-94ed-4c39-89cb-5372b7673359" config-ref="File_Config" moveToDirectory="D:\Destination">
+			<redelivery-policy maxRedeliveryCount="4" />
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="SECONDS" />
+			</scheduling-strategy>
+			<file:matcher timeUnit="SECONDS" symLinks="EXCLUDE" />
+		</file:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="c00743d4-da59-48dd-bb73-28a80f27952d" message="Task Completed"/>
+	</flow>
+</mule>

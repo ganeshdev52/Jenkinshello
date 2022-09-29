@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:java="http://www.mulesoft.org/schema/mule/java"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config3" doc:name="HTTP Listener config" doc:id="c29a4fca-c426-40a2-94bf-2cab58d5da1d" basePath="/base" >
+		<http:listener-connection host="0.0.0.0" port="9898" />
+	</http:listener-config>
+	<flow name="JavaStaticFlow" doc:id="d08b633b-0c1f-46d0-a5be-d03e59132d7b" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="c363d08e-b6a9-4d26-8cfc-e7ee428c0405" config-ref="HTTP_Listener_config3" path="/process"/>
+		<java:invoke-static method="addition(int,int)" doc:id="35147f81-4683-481d-88f5-79e23b22e78d" class="helloworld.Calculator">
+			<java:args ><![CDATA[#[output  application/json
+---
+{
+	a: attributes.queryParams.a as Number,
+    b: attributes.queryParams.b as Number
+}]]]></java:args>
+		</java:invoke-static>
+	</flow>
+</mule>

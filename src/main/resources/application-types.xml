@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="String" format="json">
+      <types:shape format="weave" example="examples/a-3.json"><![CDATA[%dw 2.0
+
+type String = Array<{|  gandar: String,   Address: String|}> {"example": "[{\\\"gandar\\\":\\\"m\\\",\\\"Address\\\":\\\"Hyderabad\\\"},{\\\"gandar\\\":\\\"m\\\",\\\"Address\\\":\\\"Delhi\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="Response" format="json">
+      <types:shape format="weave" example="examples/AddResponse.json"><![CDATA[%dw 2.0
+
+type Response = {| AddResult: Number {"typeId": "int"} |} {"example": "{\\\"AddResult\\\":300}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#431aa4b8-bade-4815-82f2-75debb6e03cf">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Response"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

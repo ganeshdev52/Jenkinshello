@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:netsuite="http://www.mulesoft.org/schema/mule/netsuite" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/netsuite http://www.mulesoft.org/schema/mule/netsuite/current/mule-netsuite.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="20c46a1d-325f-4b26-93b7-b7a3e6455b37" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="d438e6ac-320a-4e90-b371-1ced3b308c61" basePath="/base" >
+		<http:listener-connection host="${http.host}" port="9999" />
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_config2" doc:name="HTTP Listener config" doc:id="b8983bef-c720-41ee-b444-dfe8ba0f9fe6" basePath="/base" >
+		<http:listener-connection host="0.0.0.0" port="9998" />
+	</http:listener-config>
+	<jms:config name="JMS_Config" doc:name="JMS Config" doc:id="c646a378-7cb5-47c2-8d8e-b8e5783b9379" >
+		<jms:active-mq-connection username="admin" password="admin" >
+			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
+		</jms:active-mq-connection>
+	</jms:config>
+	<flow name="helloworldFlow1" doc:id="c503a864-60e4-43c9-977d-2e9fb8564a60" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="a0b0b7b4-5b4c-4ae8-9da1-55ad86a2a645" config-ref="HTTP_Listener_config1" path="/process"/>
+		<set-variable value="#[attributes.queryParams.number]" doc:name="Set Variable" doc:id="604c0671-44b6-49a7-a16d-f58447193430" variableName="Number"/>
+		<choice doc:name="Choice" doc:id="42574123-8355-4f43-b269-f5c9c50ac27d" >
+			<when expression="#[(vars.Number mod 2) == 0]">
+				<set-payload doc:name="Set Payload" doc:id="bb3d4614-0a1b-41e0-8871-26a3a6a4475b" value="This is Even"/>
+			</when>
+			<otherwise >
+				<set-payload value="This is Odd" doc:name="Set Payload" doc:id="088d449a-9407-4689-b992-c1eeec83b556" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="77849ee2-a6d0-48b9-bf76-f3ff9f1b37e3" />
+	</flow>
+	<flow name="helloworldFlow" doc:id="cb773197-6374-4ca1-b11d-af005a2ca0ba" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="6f9a6942-388c-4ff2-8462-8ef0ab42aa4a" config-ref="HTTP_Listener_config2" path="/process"/>
+		<logger level="INFO" doc:name="Logger" doc:id="4cd74199-ce20-4843-950c-7bf2dda496b3" />
+		<jms:publish doc:name="Publish" doc:id="0e9513c2-a708-4666-9543-2148a126164f" config-ref="JMS_Config" destination="Dextara"/>
+		<logger level="INFO" doc:name="Logger" doc:id="afcc9f8a-949c-4eb6-ba34-a0969475ddd3" />
+	</flow>
+</mule>

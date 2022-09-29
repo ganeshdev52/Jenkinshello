@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config4" doc:name="HTTP Listener config" doc:id="869a50b8-26a0-489b-a59d-2ec9734d33a3" basePath="/base" >
+		<http:listener-connection host="0.0.0.0" port="8889" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="b0ba7974-e7c1-4ab6-a4ca-4a3d5ba761a2" >
+		<salesforce:basic-connection username="ganesht@dextara.com" password="Dextara@123" securityToken="cAuELT9Tz8pjvkjHHEcEuBsyI" url="https://login.salesforce.com/services/Soap/u/54.0" />
+	</salesforce:sfdc-config>
+	<flow name="SalesforceConfigFlow" doc:id="39af4670-cc1c-48cd-a7a8-106163f4d715" >
+		<http:listener doc:name="Listener" doc:id="bb6098e7-192a-4a12-b59d-1b4e36fa0c7b" config-ref="HTTP_Listener_config4" path="/process"/>
+		<ee:transform doc:name="Transform Message" doc:id="75ddc242-eca2-4156-b2fe-5d44a882b707" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+    Name: payload01."branch Name",
+    Emp__c: payload01.Empcode as String
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create doc:name="Create" doc:id="a776a49e-14d3-4f26-99cf-bc01c7cffeb2" config-ref="Salesforce_Config" type="MuleTraining__c">
+			<salesforce:records ><![CDATA[#[output application/java
+---
+[{
+	Name: attributes.queryParams as String,
+	Emp__c: attributes.queryParams as Number
+}]]]]></salesforce:records>
+		</salesforce:create>
+	</flow>
+</mule>

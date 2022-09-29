@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:listener-config name="HTTP_Listener_config5" doc:name="HTTP Listener config" doc:id="122fee6c-02b4-4ac5-87b4-7276ff8002a0" >
+		<http:listener-connection host="0.0.0.0" port="8899" />
+	</http:listener-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="45763d3f-230a-452e-a637-922693245d5d" >
+		<wsc:connection wsdlLocation="WSDL\calculator.xml" service="Calculator" port="CalculatorSoap" address="http://www.dneonline.com/calculator.asmx" />
+	</wsc:config>
+	<flow name="SFDC_DemoFlow" doc:id="5706d4a8-281a-43fe-952b-58b73492bf14" initialState="stopped">
+		<http:listener doc:name="Listener" doc:id="bb77a32a-568e-453f-94ad-b0dc02a27dd4" config-ref="HTTP_Listener_config5" path="/process"/>
+		<ee:transform doc:name="Transform Message" doc:id="aec9ab03-4e43-4228-bcbe-a59fe02cdaa9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://tempuri.org/
+---
+{
+	ns0#Add: {
+		ns0#intA: payload.intA,
+		ns0#intB: payload.intB
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="70efcfde-5c51-499c-aed3-3793f95388a8" config-ref="Web_Service_Consumer_Config" operation="Add"/>
+		<ee:transform doc:name="Transform Message" doc:id="431aa4b8-bade-4815-82f2-75debb6e03cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://tempuri.org/
+---
+{
+	AddResult: "Sum is: "++ payload.body.ns0#AddResponse as Number default 0
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
